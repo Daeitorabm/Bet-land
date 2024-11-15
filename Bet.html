@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بت لند</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        #loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 2em;
+        }
+        #mainContent {
+            display: none;
+            text-align: center;
+        }
+        .button {
+            background-color: #4CAF50;
+            padding: 15px 25px;
+            margin-top: 20px;
+            color: white;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #444;
+            color: white;
+        }
+        .form-container button {
+            width: 100%;
+            background-color: #4CAF50;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1em;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- پیام بارگذاری اولیه -->
+    <div id="loader">خوش آمدید به بت لند <br> ...در حال بارگذاری</div>
+
+    <!-- محتوای اصلی سایت -->
+    <div id="mainContent">
+        <h1>بت لند</h1>
+        <p>برای ادامه، یکی از گزینه‌های زیر را انتخاب کنید</p>
+        <button class="button" onclick="showLoginForm()">ورود</button>
+        <button class="button" onclick="showSignupForm()">ثبت‌نام</button>
+
+        <!-- فرم‌های ورود و ثبت‌نام -->
+        <div id="loginForm" class="form-container">
+            <h2>ورود به حساب کاربری</h2>
+            <input type="email" id="loginEmail" placeholder="ایمیل" required>
+            <input type="password" id="loginPassword" placeholder="رمز عبور" required>
+            <button onclick="login()">ورود</button>
+            <button class="button" onclick="closeForm('loginForm')">بستن</button>
+        </div>
+
+        <div id="signupForm" class="form-container">
+            <h2>ثبت‌نام</h2>
+            <input type="email" id="signupEmail" placeholder="ایمیل" required>
+            <input type="password" id="signupPassword" placeholder="رمز عبور" required>
+            <input type="password" id="signupConfirmPassword" placeholder="تکرار رمز عبور" required>
+            <button onclick="signup()">ثبت‌نام</button>
+            <button class="button" onclick="closeForm('signupForm')">بستن</button>
+        </div>
+    </div>
+
+    <!-- اضافه کردن کتابخانه‌های GSAP و Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // انیمیشن اولیه قبل از نمایش صفحه اصلی
+        setTimeout(() => {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("mainContent").style.display = "block";
+
+            // ایجاد افکت‌های متحرک پس‌زمینه با Three.js
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // ساخت کره‌های متحرک
+            const spheres = [];
+            for (let i = 0; i < 20; i++) {
+                const geometry = new THREE.SphereGeometry(0.5, 16, 16);
+                const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+                const sphere = new THREE.Mesh(geometry, material);
+
+                sphere.position.x = (Math.random() - 0.5) * 20;
+                sphere.position.y = (Math.random() - 0.5) * 20;
+                sphere.position.z = (Math.random() - 0.5) * 20;
+
+                scene.add(sphere);
+                spheres.push(sphere);
+            }
+
+            // اضافه کردن نور
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+
+            camera.position.z = 5;
+
+            // متحرک‌سازی کره‌ها با GSAP
+            spheres.forEach(sphere => {
+                gsap.to(sphere.position, {
+                    x: "+=" + (Math.random() - 0.5) * 10,
+                    y: "+=" + (Math.random() - 0.5) * 10,
+                    z: "+=" + (Math.random() - 0.5) * 10,
+                    duration: 5,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "power1.inOut"
+                });
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // واکنش‌پذیری به اندازه صفحه
+            window.addEventListener('resize', () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+            });
+        }, 3000); // نمایش صفحه اصلی بعد از 3 ثانیه
+
+        // نمایش فرم ورود
+        function showLoginForm() {
+            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("signupForm").style.display = "none";
+        }
+
+        // نمایش فرم ثبت‌نام
+        function showSignupForm() {
+            document.getElementById("signupForm").style.display = "block";
+            document.getElementById("loginForm").style.display = "none";
+        }
+
+        // بستن فرم‌ها
+        function closeForm(formId) {
+            document.getElementById(formId).style.display = "none";
+        }
+
+        // عملکرد ورود
+        function login() {
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+            if (email && password) {
+                alert("ورود موفقیت‌آمیز");
+                // هدایت به سایت اصلی بت لند
+                window.location.href = "https://www.betland.com";  // آدرس سایت بت لند
+            } else {
+                alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
+            }
+        }
+
+        // عملکرد ثبت‌نام
+        function signup() {
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            const confirmPassword = document.getElementById("signupConfirmPassword").value;
+            if (email && password && confirmPassword) {
+                if (password === confirmPassword) {
+                    alert("ثبت‌نام موفقیت‌آمیز");
+                    // هدایت به سایت اصلی بت لند
+                    window.location.href = "https://www.betland.com";  // آدرس سایت بت لند
+                } else {
+                    alert("رمز عبور و تکرار رمز عبور مطابقت ندارند.");
+                }
+            } else {
+                alert("لطفاً همه فیلدها را پر کنید.");
+            }
+        }
+    </script>
+</body>
+</html>
